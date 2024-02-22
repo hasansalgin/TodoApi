@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo List</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anta&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Whisper&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <h1>To-Do List</h1>
+    <form class="frm-task" id="frmTask">
+      <input id="task" type="text" placeholder="Enter a new task.." required />
+      <button>ADD</button>
+    </form>
+    <div id="todos" class="todos"></div>
+
+    <script>
+      const frmTask = document.getElementById("frmTask");
+      const inputTask = document.getElementById("task");
+      const apiUrl = "https://localhost:7100/api/TodoItems";
+      const divTodos = document.getElementById("todos");
+
+      frmTask.onsubmit = function (e) {
+        e.preventDefault();
+
+        const newTodo = {
+          title: inputTask.value,
+          done: false,
+        };
+
+        fetch(apiUrl, {
+          method: "POST",
+          body: JSON.stringify(newTodo),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            inputTask.value = "";
+            listALL();
+          });
+      };
+
+      function deleteTodo(id) {
+        fetch(apiUrl + "/" + id, { method: "DELETE" }).then((res) => {
+          listALL();
+        });
+      }
+
+      function updateTodo(e, todo) {
+        todo.done = e.target.checked;
+
+        fetch(
+          apiUrl + "/" + todo.id,
+          {
+            method: "PUT",
+            body: JSON.stringify(todo),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+          todo
+        ).then((res) => {
+          listALL();
+        });
+      }
+
+      function listALL() {
+        fetch(apiUrl)
+          .then((res) => res.json())
+          .then((data) => {
+            divTodos.innerHTML = "";
+            data.forEach((todo, index) => {
+              let divTodo = document.createElement("div");
+              divTodo.className = "todo";
+              let chk = document.createElement("input");
+              chk.type = "checkbox";
+              chk.checked = todo.done;
+              chk.onchange = (e) => updateTodo(e, todo);
+              let span = document.createElement("span");
+              span.textContent = todo.title;
+              let btn = document.createElement("button");
+              btn.onclick = () => deleteTodo(todo.id);
+              btn.innerHTML = "&times";
+              divTodo.append(chk, span, btn);
+              divTodos.append(divTodo);
+            });
+          });
+      }
+      listALL();
+    </script>
+  </body>
+</html>

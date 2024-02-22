@@ -1,0 +1,17 @@
+@TodoApi_HostAddress = http://localhost:5050
+
+GET {{TodoApi_HostAddress}}/api/HavaDurumu/
+Accept: application/json
+
+###
+
+GET {{TodoApi_HostAddress}}/api/TodoItems/
+Accept: application/json
+
+###
+
+
+GET {{TodoApi_HostAddress}}/api/TodoItems/5
+Accept: application/json
+
+###
